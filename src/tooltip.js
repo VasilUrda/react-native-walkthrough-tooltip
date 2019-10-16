@@ -6,8 +6,9 @@ import {
   Modal,
   TouchableWithoutFeedback,
   View,
-} from 'react-native';
-import rfcIsEqual from 'react-fast-compare';
+  StyleSheet
+} from "react-native";
+import rfcIsEqual from "react-fast-compare";
 import {
   Point,
   Size,
@@ -32,7 +33,10 @@ const DEFAULT_DISPLAY_INSETS = {
   right: 24,
 };
 
-const computeDisplayInsets = insetsFromProps =>
+const ANCHOR_SIZE = 8;
+const MAIN_COLOR = '#1F335A';
+
+const computeDisplayInsets = (insetsFromProps) =>
   Object.assign({}, DEFAULT_DISPLAY_INSETS, insetsFromProps);
 
 const invertPlacement = placement => {
@@ -369,20 +373,44 @@ class Tooltip extends Component {
       placement: this.state.placement,
       tooltipOrigin: this.state.tooltipOrigin,
     });
-
     const hasChildren = React.Children.count(this.props.children) > 0;
-
+    const arrowStyle = StyleSheet.flatten(generatedStyles.arrowStyle);
+    const anchorLeftSideStyle = {
+      width: arrowStyle.left - 4,
+      backgroundColor: MAIN_COLOR
+    };
+    const { placement } = this.props;
     return (
       <TouchableWithoutFeedback onPress={this.props.onClose}>
         <View style={generatedStyles.containerStyle}>
           <View style={[generatedStyles.backgroundStyle]}>
             <View style={generatedStyles.tooltipStyle}>
-              {hasChildren ? <View style={generatedStyles.arrowStyle} /> : null}
+              {hasChildren ? (
+                <View style={{ position: 'absolute', left: arrowStyle.left, top: arrowStyle.top, width: ANCHOR_SIZE, height: ANCHOR_SIZE, borderRadius: ANCHOR_SIZE/2, backgroundColor: MAIN_COLOR}} />
+              ) : null}
               <View
                 onLayout={this.measureContent}
                 style={generatedStyles.contentStyle}
               >
+                <View style={styles.anchorContainer}>
+                  { placement === 'bottom' ? (
+                    <>
+                      <View style={anchorLeftSideStyle} />
+                      <View style={styles.anchorDown} />
+                      <View style={styles.anchorRightSide} />
+                    </>
+                    ) : <View style={styles.anchorRightSide} />}
+                </View>
                 {this.props.content}
+                <View style={styles.anchorContainer}>
+                  { !placement || placement === 'top' ? (
+                    <>
+                        <View style={anchorLeftSideStyle} />
+                        <View style={styles.anchorUp} />
+                        <View style={styles.anchorRightSide} />
+                    </>
+                  ) : <View style={styles.anchorRightSide} />}
+              </View>
               </View>
             </View>
           </View>
@@ -429,3 +457,53 @@ class Tooltip extends Component {
 }
 
 export default Tooltip;
+
+const styles = StyleSheet.create({
+  arrowStyle: {
+      backgroundColor: MAIN_COLOR,
+      borderRadius: 3,
+      width: 6,
+      height: 6,
+      borderColor: 'transparent',
+      borderTopWidth: 0,
+      borderBottomWidth: 0,
+      borderLeftWidth: 0,
+      borderRightWidth: 0,
+  },
+  contentStyle: {
+      padding: 0,
+      backgroundColor: 'transparent'
+  },
+  anchorContainer: {
+      flexDirection: 'row',
+      height: ANCHOR_SIZE
+  },
+  anchorRightSide: {
+      flex: 1,
+      backgroundColor: MAIN_COLOR
+  },
+  anchorDown: {
+      width: 0,
+      height: 0,
+      borderLeftWidth: ANCHOR_SIZE,
+      borderRightWidth: ANCHOR_SIZE,
+      borderTopWidth: ANCHOR_SIZE,
+      borderLeftColor: MAIN_COLOR,
+      borderRightColor: MAIN_COLOR,
+      borderTopColor: 'transparent'
+  },
+  anchorUp: {
+      width: 0,
+      height: 0,
+      borderLeftWidth: ANCHOR_SIZE,
+      borderRightWidth: ANCHOR_SIZE,
+      borderBottomWidth: ANCHOR_SIZE,
+      borderLeftColor: MAIN_COLOR,
+      borderRightColor: MAIN_COLOR,
+      borderBottomColor: 'transparent'
+  },
+  wrapper: {
+      padding: 10,
+      paddingTop: 10 - ANCHOR_SIZE
+  }
+});
