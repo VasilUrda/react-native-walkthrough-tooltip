@@ -376,9 +376,10 @@ class Tooltip extends Component {
     const hasChildren = React.Children.count(this.props.children) > 0;
     const arrowStyle = StyleSheet.flatten(generatedStyles.arrowStyle);
     const anchorLeftSideStyle = {
-      width: arrowStyle.left - 4,
+      width: arrowStyle.left - 4 || 0,
       backgroundColor: MAIN_COLOR
     };
+
     const { placement } = this.props;
     return (
       <TouchableWithoutFeedback onPress={this.props.onClose}>
@@ -386,7 +387,7 @@ class Tooltip extends Component {
           <View style={[generatedStyles.backgroundStyle]}>
             <View style={generatedStyles.tooltipStyle}>
               {hasChildren ? (
-                <View style={{ position: 'absolute', left: arrowStyle.left, top: arrowStyle.top, width: ANCHOR_SIZE, height: ANCHOR_SIZE, borderRadius: ANCHOR_SIZE/2, backgroundColor: MAIN_COLOR}} />
+                <View style={{ position: 'absolute', left: arrowStyle.left || 0, top: arrowStyle.top || 0, width: ANCHOR_SIZE, height: ANCHOR_SIZE, borderRadius: ANCHOR_SIZE/2, backgroundColor: MAIN_COLOR}} />
               ) : null}
               <View
                 onLayout={this.measureContent}
@@ -402,7 +403,7 @@ class Tooltip extends Component {
                     ) : <View style={styles.anchorRightSide} />}
                 </View>
                 {this.props.content}
-                <View style={styles.anchorContainer}>
+                <View style={[styles.anchorContainer, { marginTop: -1}]}>
                   { !placement || placement === 'top' ? (
                     <>
                         <View style={anchorLeftSideStyle} />
@@ -476,7 +477,7 @@ const styles = StyleSheet.create({
   },
   anchorContainer: {
       flexDirection: 'row',
-      height: ANCHOR_SIZE
+      height: ANCHOR_SIZE,
   },
   anchorRightSide: {
       flex: 1,
